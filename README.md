@@ -1,54 +1,86 @@
-# React + TypeScript + Vite
+# YouTube Comments Viewer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This web app allows users to log in with their Google account and view all the comments they've made under YouTube videos. The app fetches the data using YouTube's API and displays it in a user-friendly format. It is hosted on GitHub Pages for easy access and demo purposes.
 
-Currently, two official plugins are available:
+## Features
+- **Google OAuth Login**: Login with your Google account to access your YouTube comments.
+- **View YouTube Comments**: Fetch and display all comments made by the logged-in user on YouTube.
+- **Responsive Design**: The app is responsive and works across various screen sizes.
+- **Hosted on GitHub Pages**: View the live demo and deploy easily.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Live Demo
 
-## Expanding the ESLint configuration
+You can check out the live demo of the app hosted on GitHub Pages at the following URL:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+[https://shalashanka.github.io/youtube-comments/](https://shalashanka.github.io/youtube-comments/)
+
+## Technologies Used
+- **React**: For building the frontend of the app.
+- **Vite**: A fast and optimized development environment for building React apps.
+- **Firebase Authentication**: For handling Google OAuth login.
+- **YouTube API**: To fetch comments from the user's YouTube account.
+
+## Prerequisites
+
+Before running this app locally, make sure you have the following installed:
+
+- [Node.js](https://nodejs.org/) (version 16 or higher)
+- [npm](https://npmjs.com) (Node package manager)
+
+## Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/shalashanka/youtube-comments.git
+
+2. Navigate to the project directory:
+
+  ```bash
+  cd youtube-comments
+  ```
+
+3. Install the required dependencies:
+
+  ```bash
+  npm install
+  ```
+
+## Set up Firebase
+
+To enable Google authentication, you need to set up Firebase in your project.
+
+Go to Firebase Console.
+
+Create a new project (or use an existing one).
+
+Enable Firebase Authentication (Google provider) in your Firebase console.
+
+Copy the Firebase configuration object from the Firebase console.
+
+Create a firebaseConfig.js file in the src/ folder of your project and paste the configuration object there.
+
+Example:
 
 ```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const provider = new GoogleAuthProvider();
 ```
+## Running the App Locally
+Once everything is set up, you can run the app locally:
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+  ```bash
+  npm run dev
