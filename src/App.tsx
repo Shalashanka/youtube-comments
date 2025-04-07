@@ -4,7 +4,6 @@ import {
   useGoogleLogin,
   googleLogout,
 } from '@react-oauth/google';
-import jwtDecode from 'jwt-decode';
 import axios from 'axios';
 
 const clientId = '246245907863-sp8ffjig1cotv3p1ir5ffbiuh23qfedj.apps.googleusercontent.com'; // Replace with your Google Client ID
