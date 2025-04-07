@@ -1,91 +1,39 @@
-import { useState } from "react";
-import { auth, provider } from "./firebaseConfig";
-import { signInWithPopup, signOut } from "firebase/auth";
-import { User } from "firebase/auth";
+import React from 'react';
+import { GoogleOAuthProvider, GoogleLogin, googleLogout } from '@react-oauth/google';
 
-//const CLIENT_ID = "YOUR_YOUTUBE_CLIENT_ID";
-//const API_KEY = "YOUR_YOUTUBE_API_KEY";
-const CLIENT_ID = "246245907863-sp8ffjig1cotv3p1ir5ffbiuh23qfedj.apps.googleusercontent.com";
-const API_KEY = "AIzaSyCpmRrs9_qgl7S6MC3gcmlGQmE7nXfKPfI";
-const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest"];
-const SCOPES = "https://www.googleapis.com/auth/youtube.force-ssl";
+const clientId = '246245907863-sp8ffjig1cotv3p1ir5ffbiuh23qfedj.apps.googleusercontent.com'; // Replace with your actual client ID
 
-declare global {
-  interface Window {
-    gapi: any;
-  }
-}
-
-
-function App() {
-  const [user, setUser] = useState<User | null>(null);
-	interface Comment {
-	  id: string;
-	  snippet: {
-		topLevelComment: {
-		  snippet: {
-			textDisplay: string;
-		  };
-		};
-	  };
-	}
-
-	const [comments, setComments] = useState<Comment[]>([]);
-
-  const login = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
-      
-      window.gapi.load("client:auth2", () => {
-        window.gapi.client.init({
-          apiKey: API_KEY,
-          clientId: CLIENT_ID,
-          discoveryDocs: DISCOVERY_DOCS,
-          scope: SCOPES,
-        }).then(() => {
-          window.gapi.auth2.getAuthInstance().signIn();
-        });
-      });
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
+const App: React.FC = () => {
+  const handleLoginSuccess = (credentialResponse: any) => {
+    console.log('Login Success:', credentialResponse);
+    // You can decode the token if needed using jwt-decode
+    // const decoded = jwtDecode(credentialResponse.credential);
+    // console.log('Decoded token:', decoded);
   };
 
-  const fetchComments = async () => {
-    if (!window.gapi.auth2.getAuthInstance().isSignedIn.get()) return;
-    const response = await window.gapi.client.youtube.commentThreads.list({
-      part: "snippet",
-      mine: true,
-      maxResults: 10,
-    });
-    setComments(response.result.items);
+  const handleLoginError = () => {
+    console.log('Login Failed');
   };
 
-  const logout = async () => {
-    await signOut(auth);
-    setUser(null);
-    setComments([]);
+  const handleLogout = () => {
+    googleLogout();
+    console.log('Logged out');
   };
 
   return (
-    <div>
-      {!user ? (
-        <button onClick={login}>Login with Google</button>
-      ) : (
-        <div>
-          <p>Welcome, {user.displayName}!</p>
-          <button onClick={fetchComments}>Fetch Comments</button>
-          <button onClick={logout}>Logout</button>
-          <ul>
-            {comments.map((comment) => (
-              <li key={comment.id}>{comment.snippet.topLevelComment.snippet.textDisplay}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
+    <GoogleOAuthProvider clientId={clientId}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 50 }}>
+        <h2>Login with Googla</h2>
+        <GoogleLogin
+          onSuccess={handleLoginSuccess}
+          onError={handleLoginError}
+        />
+        <button onClick={handleLogout} style={{ marginTop: 20 }}>
+          Logout
+        </button>
+      </div>
+    </GoogleOAuthProvider>
   );
-}
+};
 
 export default App;
