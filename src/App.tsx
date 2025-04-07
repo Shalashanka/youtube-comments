@@ -82,14 +82,13 @@ const App: React.FC = () => {
   const fetchYouTubeComments = async (token: string) => {
     try {
       setIsLoading(true);
-      console.log("Attempting to fetch with token:", token.substring(0, 10) + "...");
       
-      const res = await axios.get(
-        'https://www.googleapis.com/youtube/v3/commentThreads',
+      // First, get the user's channel
+      const channelRes = await axios.get(
+        'https://www.googleapis.com/youtube/v3/channels',
         {
           params: {
             part: 'snippet',
-            maxResults: 25,
             mine: true,
           },
           headers: {
@@ -99,16 +98,40 @@ const App: React.FC = () => {
         }
       );
       
-      setComments(res.data.items || []);
-      console.log('YouTube Comments Response:', res.data);
-    } catch (err: any) {
-      console.error('Failed to fetch comments:', err);
+      console.log('Channel info:', channelRes.data);
       
-      // Log detailed error information
+      if (!channelRes.data.items || channelRes.data.items.length === 0) {
+        setError('No YouTube channel found for this user.');
+        setIsLoading(false);
+        return;
+      }
+      
+      const channelId = channelRes.data.items[0].id;
+      
+      // Now fetch comments using the channelId parameter
+      const res = await axios.get(
+        'https://www.googleapis.com/youtube/v3/commentThreads',
+        {
+          params: {
+            part: 'snippet',
+            maxResults: 25,
+            channelId: channelId, // Using channelId as the filter parameter
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        }
+      );
+      
+      setComments(res.data.items || []);
+      console.log('YouTube Comments:', res.data);
+    } catch (err: any) {
+      console.error('Failed to fetch:', err);
+      
       if (err.response) {
         console.error('Error response data:', err.response.data);
-        console.error('Error response status:', err.response.status);
-        setError(`API Error (${err.response.status}): ${err.response.data?.error?.message || 'Unknown error'}`);
+        setError(`API Error: ${err.response.data?.error?.message || 'Unknown error'}`);
       } else {
         setError('Failed to connect to YouTube API');
       }
