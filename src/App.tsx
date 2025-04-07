@@ -51,7 +51,7 @@ const App: React.FC = () => {
       try {
         const gsiClient = window.google?.accounts?.oauth2.initTokenClient({
           client_id: clientId,
-          scope: 'https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/userinfo.email',
+          scope: 'https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/youtube.readonly',
           callback: (tokenResponse) => {
             setAccessToken(tokenResponse.access_token);
           },
@@ -82,6 +82,8 @@ const App: React.FC = () => {
   const fetchYouTubeComments = async (token: string) => {
     try {
       setIsLoading(true);
+      console.log("Attempting to fetch with token:", token.substring(0, 10) + "...");
+      
       const res = await axios.get(
         'https://www.googleapis.com/youtube/v3/commentThreads',
         {
@@ -96,11 +98,20 @@ const App: React.FC = () => {
           },
         }
       );
+      
       setComments(res.data.items || []);
-      console.log('YouTube Comments:', res.data);
+      console.log('YouTube Comments Response:', res.data);
     } catch (err: any) {
       console.error('Failed to fetch comments:', err);
-      setError(err.response?.data?.error?.message || 'Failed to fetch comments');
+      
+      // Log detailed error information
+      if (err.response) {
+        console.error('Error response data:', err.response.data);
+        console.error('Error response status:', err.response.status);
+        setError(`API Error (${err.response.status}): ${err.response.data?.error?.message || 'Unknown error'}`);
+      } else {
+        setError('Failed to connect to YouTube API');
+      }
     } finally {
       setIsLoading(false);
     }
